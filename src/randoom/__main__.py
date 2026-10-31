@@ -14,8 +14,9 @@ class Jogo:
         self.relogio = pygame.time.Clock()
         self.rodando: bool = True
 
-        self.ESCALA = SCREEN_WIDTH 
+        self.ESCALA = SCREEN_WIDTH // 75
         self.COLUNAS = SCREEN_WIDTH // 5
+        self.LARGURA = SCREEN_WIDTH // self.COLUNAS
         self.player = Jogador(1.5, 6.5, 0.0, DEFAULT_FOV)
         self.mapa = Mapa(SCREEN_WIDTH, SCREEN_HEIGHT)
     
@@ -46,11 +47,25 @@ class Jogo:
     def raytracing(self):
         for i in range (self.COLUNAS):
             angulo_raio = self.player.angulo - self.player.FOV / 2 + self.player.FOV * i / self.COLUNAS
-            distancia_raio = self.mapa.raio(angulo_raio, self.player.x, self.player.y)
+            distancia_real, lado = self.mapa.raio(angulo_raio, self.player.x, self.player.y)
             
-            px = self.player.x + math.cos(angulo_raio) * distancia_raio
-            py = self.player.y + math.sin(angulo_raio) * distancia_raio
+            # Onde o raio bate:
+            px = self.player.x + math.cos(angulo_raio) * distancia_real
+            py = self.player.y + math.sin(angulo_raio) * distancia_real
+
+            distancia_raio = distancia_real * math.cos(angulo_raio - self.player.angulo) # Correção do efeito "olho de peixe"
+            luz = max(30, 230 - distancia_raio * 22)
             
+            if lado == 0:
+               luz *= 0.7
+
+            
+            altura = min(SCREEN_HEIGHT, SCREEN_HEIGHT / distancia_raio)
+            
+            cor = (luz, luz * 0.9, luz * 0.75)
+            faixa = (i * self.LARGURA, 200 - altura / 2, self.LARGURA, altura)
+            
+            pygame.draw.rect(self.tela, cor, faixa) # Paredes
             pygame.draw.line(
                 self.tela, 
                 "yellow", 
@@ -59,7 +74,8 @@ class Jogo:
             )
     
     def renderizar(self):
-        self.tela.fill("black")
+        self.tela.fill("gray10") # Teto
+        pygame.draw.rect(self.tela, "sienna4", (0, 200, 600, 200)) # Chão
         self.raytracing()
 
         for my, linha in enumerate(self.mapa.DESENHO):
