@@ -1,0 +1,87 @@
+import pygame
+import sys
+import math
+from .config import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, TITLE, DEFAULT_FOV
+from .entities import Jogador
+from .scenes import Mapa
+
+class Jogo:
+    def __init__(self) -> None:
+        pygame.init()
+        
+        pygame.display.set_caption(TITLE)
+        self.tela = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.relogio = pygame.time.Clock()
+        self.rodando: bool = True
+
+        self.ESCALA = SCREEN_WIDTH 
+        self.COLUNAS = SCREEN_WIDTH // 5
+        self.player = Jogador(1.5, 6.5, 0.0, DEFAULT_FOV)
+        self.mapa = Mapa(SCREEN_WIDTH, SCREEN_HEIGHT)
+    
+    def checar_eventos(self) -> None:
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                self.rodando = False
+            elif evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_ESCAPE:
+                    self.rodando = False
+    
+    def atualizar(self) -> None:
+        teclas = pygame.key.get_pressed()
+                    
+        giro = teclas[pygame.K_RIGHT] - teclas[pygame.K_LEFT]
+        self.player.angulo += giro * 0.05
+    
+        frente = teclas[pygame.K_UP] - teclas[pygame.K_DOWN]
+        passo = frente * 0.08
+        
+        dx,dy = self.player.novaPosicao(passo)
+
+        if not self.mapa.parede(self.player.x + dx, self.player.y):
+            self.player.x += dx
+        if not self.mapa.parede(self.player.x, self.player.y + dy):
+            self.player.y += dy
+            
+    def raytracing(self):
+        for i in range (self.COLUNAS):
+            angulo_raio = self.player.angulo - self.player.FOV / 2 + self.player.FOV * i / self.COLUNAS
+            distancia_raio = self.mapa.raio(angulo_raio, self.player.x, self.player.y)
+            
+            px = self.player.x + math.cos(angulo_raio) * distancia_raio
+            py = self.player.y + math.sin(angulo_raio) * distancia_raio
+            
+            pygame.draw.line(
+                self.tela, 
+                "yellow", 
+                (self.player.x * self.ESCALA, self.player.y * self.ESCALA),
+                (px * self.ESCALA, py * self.ESCALA)
+            )
+    
+    def renderizar(self):
+        self.tela.fill("black")
+        self.raytracing()
+
+        for my, linha in enumerate(self.mapa.DESENHO):
+            for mx, c in enumerate(linha):
+                if c == "#":
+                    bloco = (mx * self.ESCALA, my * self.ESCALA, self.ESCALA, self.ESCALA)
+                    pygame.draw.rect(self.tela, "gray40", bloco)
+                        
+        pygame.draw.circle(self.tela, "white", (self.player.x * self.ESCALA, self.player.y * self.ESCALA), 5)
+        pygame.display.flip()
+    
+    def executar(self) -> None:                    
+        while self.rodando:
+            self.checar_eventos()
+            self.atualizar()
+            self.renderizar()
+            self.relogio.tick(FPS)
+        pygame.quit()
+    
+def main() -> None:
+    RanDOOM = Jogo()
+    RanDOOM.executar()
+    
+if __name__ == "__main__":
+    main()
