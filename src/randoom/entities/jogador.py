@@ -14,9 +14,11 @@ class Jogador:
         self.FOV = FOV
         self.angulo = angulo
         self.velocidade = DEFAULT_SPEED
+        self.tempo_caminhada = 0.0
+        self.offset_caminhada = 0.0
 
     def movimentar(self, mapa: Mapa, frente: int, giro: int, correndo: bool) -> None:
-        passo = frente * (self.velocidade if not correndo else self.velocidade * 2)
+        passo = frente * (self.velocidade if not correndo else self.velocidade * 1.6)
         self.angulo += giro * 0.05
 
         dx = math.cos(self.angulo) * passo
@@ -26,3 +28,14 @@ class Jogador:
             self.x += dx
         if not mapa.parede(self.x, self.y + dy):
             self.y += dy
+
+        # Efeito de movimento:
+        if frente != 0:
+            freq = 0.3 if correndo else 0.2
+            amp = 12 if correndo else 6
+
+            self.tempo_caminhada += freq
+            self.offset_caminhada = math.sin(self.tempo_caminhada) * amp
+        else:
+            self.tempo_caminhada = 0
+            self.offset_caminhada *= 0.8

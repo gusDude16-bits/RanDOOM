@@ -1,5 +1,4 @@
 import pygame
-import sys
 from .config import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, TITLE
 from .entities import Jogador
 from .scenes import Mapa, Raycaster
@@ -36,13 +35,19 @@ class Jogo:
                     
         giro = teclas[pygame.K_RIGHT] - teclas[pygame.K_LEFT]
         frente = teclas[pygame.K_UP] - teclas[pygame.K_DOWN]
-        correndo = teclas[pygame.K_LSHIFT] or teclas[pygame.K_RSHIFT]
+        correndo = teclas[pygame.K_LCTRL] or teclas[pygame.K_RCTRL]
 
         self.player.movimentar(self.mapa, frente, giro, correndo)
     
     def renderizar(self):
         self.tela.fill("gray10") # Teto
-        pygame.draw.rect(self.tela, "sienna4", (0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT)) # Chão
+        
+        pygame.draw.rect(
+            self.tela, 
+            "sienna4", 
+            (0, SCREEN_HEIGHT / 2 + self.player.offset_caminhada, SCREEN_WIDTH, SCREEN_HEIGHT)
+        ) # Chão
+
         self.raycaster.raycasting(self.player, self.mapa, self.ESCALA)
         self.hud.desenharMinimapa(self.player)
         pygame.display.flip()

@@ -34,10 +34,13 @@ class Raycaster:
                 luz *= 0.7
 
             altura = min(self.altura_tela, self.altura_tela / distancia_raio)
+            y_top = (self.altura_tela / 2 - altura / 2) + player.offset_caminhada
+            y_base = (self.altura_tela / 2 + altura / 2) + player.offset_caminhada
+
             cor = (luz, luz * 0.9, luz * 0.75)
             faixa = (
                 i * self.largura_coluna,
-                (self.altura_tela - altura) / 2,
+                min(y_top, y_base),
                 self.largura_coluna,
                 altura
             )

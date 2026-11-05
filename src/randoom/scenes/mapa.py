@@ -1,4 +1,5 @@
 import math
+import random
 
 class Mapa:
     def __init__(self, dimensao_x: int, dimensao_y: int):
