@@ -1,7 +1,7 @@
 import pygame
 import sys
 import math
-from .config import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, TITLE, DEFAULT_FOV
+from .config import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, TITLE
 from .entities import Jogador
 from .scenes import Mapa
 
@@ -17,7 +17,7 @@ class Jogo:
         self.ESCALA = SCREEN_WIDTH // 75
         self.COLUNAS = SCREEN_WIDTH // 5
         self.LARGURA = SCREEN_WIDTH // self.COLUNAS
-        self.player = Jogador(1.5, 6.5, 0.0, DEFAULT_FOV)
+        self.player = Jogador(1.5, 6.5, 0.0)
         self.mapa = Mapa(SCREEN_WIDTH, SCREEN_HEIGHT)
     
     def checar_eventos(self) -> None:
@@ -32,46 +32,38 @@ class Jogo:
         teclas = pygame.key.get_pressed()
                     
         giro = teclas[pygame.K_RIGHT] - teclas[pygame.K_LEFT]
-        self.player.angulo += giro * 0.05
-    
         frente = teclas[pygame.K_UP] - teclas[pygame.K_DOWN]
-        passo = frente * 0.08
-        
-        dx,dy = self.player.novaPosicao(passo)
+        correndo = teclas[pygame.K_LSHIFT] or teclas[pygame.K_RSHIFT]
 
-        if not self.mapa.parede(self.player.x + dx, self.player.y):
-            self.player.x += dx
-        if not self.mapa.parede(self.player.x, self.player.y + dy):
-            self.player.y += dy
+        self.player.movimentar(self.mapa, frente, giro, correndo)
             
     def raytracing(self):
-        for i in range (self.COLUNAS):
+        for i in range(self.COLUNAS):
             angulo_raio = self.player.angulo - self.player.FOV / 2 + self.player.FOV * i / self.COLUNAS
             distancia_real, lado = self.mapa.raio(angulo_raio, self.player.x, self.player.y)
-            
+
             # Onde o raio bate:
-            px = self.player.x + math.cos(angulo_raio) * distancia_real
-            py = self.player.y + math.sin(angulo_raio) * distancia_real
+            px = self.player.x + distancia_real * math.cos(angulo_raio)
+            py = self.player.y + distancia_real * math.sin(angulo_raio)
 
-            distancia_raio = distancia_real * math.cos(angulo_raio - self.player.angulo) # Correção do efeito "olho de peixe"
+            distancia_raio = distancia_real * math.cos(angulo_raio - self.player.angulo) # Corrige o efeito olho de peixe
             luz = max(30, 230 - distancia_raio * 22)
-            
-            if lado == 0:
-               luz *= 0.7
 
-            
+            if lado == 0:
+                luz *= 0.7
+
             altura = min(SCREEN_HEIGHT, SCREEN_HEIGHT / distancia_raio)
-            
+
             cor = (luz, luz * 0.9, luz * 0.75)
-            faixa = (i * self.LARGURA, 200 - altura / 2, self.LARGURA, altura)
-            
+            faixa = (i * self.LARGURA, (SCREEN_HEIGHT - altura) / 2, self.LARGURA, altura)
+
             pygame.draw.rect(self.tela, cor, faixa) # Paredes
             pygame.draw.line(
-                self.tela, 
-                "yellow", 
+                self.tela,
+                "yellow",
                 (self.player.x * self.ESCALA, self.player.y * self.ESCALA),
                 (px * self.ESCALA, py * self.ESCALA)
-            )
+            ) # Raios
     
     def renderizar(self):
         self.tela.fill("gray10") # Teto
@@ -100,4 +92,7 @@ def main() -> None:
     RanDOOM.executar()
     
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("Programa Encerrado.")
