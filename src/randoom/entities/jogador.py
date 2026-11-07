@@ -1,18 +1,18 @@
 from ..config import DEFAULT_FOV, DEFAULT_SPEED
 from ..scenes import Mapa
+from .entity import Entity
 import math
 
-class Jogador:
+class Jogador (Entity):
     """
         Classe jogador, responsável por guardar posição, campo de visão e
         controlar a movimentação.
     """
 
     def __init__(self, px: float, py: float, angulo: float, FOV: float = DEFAULT_FOV) -> None:
-        self.x = px
-        self.y = py
+        super().__init__(px, py, angulo)
+        
         self.FOV = FOV
-        self.angulo = angulo
         self.velocidade = DEFAULT_SPEED
         self.tempo_caminhada = 0.0
         self.offset_caminhada = 0.0

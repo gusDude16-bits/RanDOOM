@@ -12,6 +12,7 @@ class Jogo:
         self.tela = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.relogio = pygame.time.Clock()
         self.rodando: bool = True
+        self.debug_ativado: bool = False
 
         self.ESCALA = SCREEN_WIDTH // 75
         self.COLUNAS = SCREEN_WIDTH // 5
@@ -29,10 +30,15 @@ class Jogo:
             elif evento.type == pygame.KEYDOWN:
                 if evento.key == pygame.K_ESCAPE:
                     self.rodando = False
+                if evento.key == pygame.K_g:
+                    if self.debug_ativado is False:
+                        self.debug_ativado = True
+                    else:
+                        self.debug_ativado = False
     
     def atualizar(self) -> None:
         teclas = pygame.key.get_pressed()
-                    
+        
         giro = teclas[pygame.K_RIGHT] - teclas[pygame.K_LEFT]
         frente = teclas[pygame.K_UP] - teclas[pygame.K_DOWN]
         correndo = teclas[pygame.K_LCTRL] or teclas[pygame.K_RCTRL]
@@ -48,8 +54,10 @@ class Jogo:
             (0, SCREEN_HEIGHT / 2 + self.player.offset_caminhada, SCREEN_WIDTH, SCREEN_HEIGHT)
         ) # Chão
 
-        self.raycaster.raycasting(self.player, self.mapa, self.ESCALA)
-        self.hud.desenharMinimapa(self.player)
+        self.raycaster.raycasting(self.player, self.mapa, self.ESCALA, self.debug_ativado)
+        if pygame.key.get_pressed()[pygame.K_TAB]:
+            self.hud.desenharMinimapa(self.player)
+        
         pygame.display.flip()
     
     def executar(self) -> None:                    

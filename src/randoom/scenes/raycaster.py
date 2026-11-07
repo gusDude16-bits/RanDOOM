@@ -16,14 +16,10 @@ class Raycaster:
         self.altura_tela = SCREEN_HEIGHT
         self.largura_coluna = self.largura_tela // self.colunas
 
-    def raycasting(self, player: Jogador, mapa: Mapa, escala: int) -> None:
+    def raycasting(self, player: Jogador, mapa: Mapa, escala: int, debug_ativado: bool) -> None:
         for i in range(self.colunas):
             angulo_raio = player.angulo - player.FOV / 2 + player.FOV * i / self.colunas
             distancia_real, lado = mapa.raio(angulo_raio, player.x, player.y)
-
-            # Ponto (x,y) onde o raio bateu:
-            px = player.x + distancia_real * math.cos(angulo_raio)
-            py = player.y + distancia_real * math.sin(angulo_raio)
 
             # Correção do efeito "olho de peixe":
             distancia_raio = distancia_real * math.cos(angulo_raio - player.angulo)
@@ -46,9 +42,16 @@ class Raycaster:
             )
 
             pygame.draw.rect(self.tela, cor, faixa)
-            pygame.draw.line(
-                self.tela,
-                "yellow",
-                (player.x * escala, player.y * escala),
-                (px * escala, py * escala)
-            )
+            
+            # Ponto (x,y) onde o raio bateu:
+            if debug_ativado is True:
+                px = player.x + distancia_real * math.cos(angulo_raio)
+                py = player.y + distancia_real * math.sin(angulo_raio)
+                
+                if pygame.key.get_pressed()[pygame.K_TAB] == 1:
+                    pygame.draw.line(
+                        self.tela,
+                        "yellow",
+                        (player.x * escala, player.y * escala),
+                        (px * escala, py * escala)
+                    )

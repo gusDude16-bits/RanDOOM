@@ -12,10 +12,14 @@ class Minimapa:
         self.ESCALA = escala
 
     def renderizar(self, tela: pygame.Surface, player: Jogador) -> None:
+        superficie = pygame.Surface(tela.size, pygame.SRCALPHA)
         for my, linha in enumerate(self.mapa.DESENHO):
             for mx, c in enumerate(linha):
+                bloco = (mx * self.ESCALA, my * self.ESCALA, self.ESCALA, self.ESCALA)
                 if c == "#":
-                    bloco = (mx * self.ESCALA, my * self.ESCALA, self.ESCALA, self.ESCALA)
-                    pygame.draw.rect(tela, "gray40", bloco)
-                        
+                    pygame.draw.rect(superficie, (120, 120, 120, 128), bloco)
+                else:
+                    pygame.draw.rect(superficie, (0, 0, 0, 128), bloco)
+        
+        tela.blit(superficie, (0, 0))
         pygame.draw.circle(tela, "white", (player.x * self.ESCALA, player.y * self.ESCALA), 5)
