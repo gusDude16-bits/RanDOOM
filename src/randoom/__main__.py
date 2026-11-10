@@ -1,6 +1,7 @@
 import pygame
+import math
 from .config import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, TITLE
-from .entities import Jogador
+from .entities import Jogador, Sprite
 from .scenes import Mapa, Raycaster
 from .ui import Hud
 
@@ -18,10 +19,12 @@ class Jogo:
         self.COLUNAS = SCREEN_WIDTH // 5
         self.LARGURA = SCREEN_WIDTH // self.COLUNAS
 
-        self.player = Jogador(1.5, 6.5, 0.0)
+        self.player = Jogador(2.5, 6.5, 0.0)
         self.mapa = Mapa(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.raycaster = Raycaster(self.tela, self.COLUNAS)
-        self.hud = Hud(self.tela, self.ESCALA, self.mapa)
+        self.sprites = list()
+        self.sprites.append(Sprite(4, 8, 0.0))
+        self.hud = Hud(self.tela, self.ESCALA, self.mapa, self.sprites)
     
     def checar_eventos(self) -> None:
         for evento in pygame.event.get():
@@ -47,7 +50,7 @@ class Jogo:
     
     def renderizar(self):
         self.tela.fill("gray10") # Teto
-        
+
         pygame.draw.rect(
             self.tela, 
             "sienna4", 
@@ -57,6 +60,12 @@ class Jogo:
         self.raycaster.raycasting(self.player, self.mapa, self.ESCALA, self.debug_ativado)
         if pygame.key.get_pressed()[pygame.K_TAB]:
             self.hud.desenharMinimapa(self.player)
+
+        # angulo_relativo = self.sprites[0].anguloRelativo(self.player)
+        # if (- self.player.FOV / 2) <= angulo_relativo < (self.player.FOV / 2):
+        #     print(f"Coluna: {((angulo_relativo + self.player.FOV / 2) * self.COLUNAS / self.player.FOV)}")
+        # else:
+        #     print(f"Não aparece")
         
         pygame.display.flip()
     

@@ -23,9 +23,6 @@ class Mapa:
         
     def parede(self, px: int, py: int) -> bool:
         return self.DESENHO[int(py)][int(px)] == "#"
-    
-    def objeto(self, px:int, py: int) -> bool:
-        return self.DESENHO[int(py)][int(px)] == "0"
 
     def raio(self, angulo: float, x_j: float, y_j: float) -> tuple[float, int]:
         cos, sen = math.cos(angulo), math.sin(angulo)
@@ -54,5 +51,5 @@ class Mapa:
                 map_y = map_y + 1 if sen > 0 else map_y - 1
                 lado = 1
 
-            if self.parede(map_x, map_y) or self.objeto(map_x, map_y):
+            if self.parede(map_x, map_y):
                 return dist_total, lado

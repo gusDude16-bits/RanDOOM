@@ -5,14 +5,16 @@ import pygame
 if TYPE_CHECKING:
     from ..scenes import Mapa
     from ..entities import Jogador
+    from ..entities import Sprite
 
 class Minimapa:
-    def __init__(self, mapa: Mapa, escala: int) -> None:
+    def __init__(self, mapa: Mapa, escala: int, sprites: list[Sprite]) -> None:
         self.mapa = mapa
         self.ESCALA = escala
+        self.sprites = sprites
 
     def renderizar(self, tela: pygame.Surface, player: Jogador) -> None:
-        superficie = pygame.Surface(tela.size, pygame.SRCALPHA)
+        superficie = pygame.Surface((tela.get_width(), tela.get_height()), pygame.SRCALPHA)
         for my, linha in enumerate(self.mapa.DESENHO):
             for mx, c in enumerate(linha):
                 bloco = (mx * self.ESCALA, my * self.ESCALA, self.ESCALA, self.ESCALA)
@@ -23,3 +25,4 @@ class Minimapa:
         
         tela.blit(superficie, (0, 0))
         pygame.draw.circle(tela, "white", (player.x * self.ESCALA, player.y * self.ESCALA), 5)
+        pygame.draw.circle(tela, "red", (self.sprites[0].x * self.ESCALA, self.sprites[0].y * self.ESCALA), 5)
