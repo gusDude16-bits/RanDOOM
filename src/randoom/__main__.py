@@ -58,6 +58,7 @@ class Jogo:
         ) # Chão
 
         self.raycaster.raycasting(self.player, self.mapa, self.ESCALA, self.debug_ativado)
+        self.raycaster.desenhar_sprite(self.sprites[0], self.player)
         if pygame.key.get_pressed()[pygame.K_TAB]:
             self.hud.desenharMinimapa(self.player)
 

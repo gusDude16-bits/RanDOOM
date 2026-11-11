@@ -7,6 +7,7 @@ from ..config import SCREEN_HEIGHT, SCREEN_WIDTH
 if TYPE_CHECKING:
     from ..entities import Jogador
     from .mapa import Mapa
+    from ..entities import Sprite
 
 class Raycaster:
     def __init__(self, surface: pygame.Surface, colunas: int) -> None:
@@ -55,3 +56,22 @@ class Raycaster:
                         (player.x * escala, player.y * escala),
                         (px * escala, py * escala)
                     )
+
+    def desenhar_sprite(self, sprite: Sprite, player: Jogador):
+        angulo_relativo = sprite.anguloRelativo(player)
+        if not(-player.FOV / 2 <= angulo_relativo < player.FOV / 2):
+            return  #Se não estiver no campo de visão, n faz nada
+        
+        distancia_real = math.sqrt(pow(sprite.x - player.x, 2) + pow(sprite.y - player.y, 2))
+        distancia_raio = distancia_real * math.cos(angulo_relativo)
+        distancia_raio = max(distancia_raio, 1e-3)
+        #Dimensões do sprite
+        altura_sprite = min(self.altura_tela, self.altura_tela / distancia_raio)
+        largura_sprite = altura_sprite/2
+
+        coluna = (angulo_relativo + player.FOV / 2) * self.colunas / player.FOV        #coluna
+        centro_px = coluna * self.largura_coluna       # coluna em pixels
+        esquerda = centro_px - largura_sprite/2        # centro menos metade da largura
+        y = self.altura_tela/2 - altura_sprite/2 + player.offset_caminhada 
+        pygame.draw.rect(self.tela, "red", (esquerda, y, largura_sprite, altura_sprite))
+
