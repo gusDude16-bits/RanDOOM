@@ -25,4 +25,5 @@ class Minimapa:
         
         tela.blit(superficie, (0, 0))
         pygame.draw.circle(tela, "white", (player.x * self.ESCALA, player.y * self.ESCALA), 5)
-        pygame.draw.circle(tela, "red", (self.sprites[0].x * self.ESCALA, self.sprites[0].y * self.ESCALA), 5)
+        for sprite in self.sprites:
+            pygame.draw.circle(tela, "red", (sprite.x * self.ESCALA, sprite.y * self.ESCALA), 5)

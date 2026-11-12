@@ -75,9 +75,9 @@ class Raycaster:
 
         coluna = (angulo_relativo + player.FOV / 2) * self.colunas / player.FOV
 
-        centro_px = coluna * self.largura_coluna        # Pixels
-        esquerda = centro_px - largura_sprite / 2       # Pixels
-        direita = centro_px + largura_sprite / 2        # Pixels
+        centro_px = coluna * self.largura_coluna
+        esquerda = centro_px - largura_sprite / 2
+        direita = centro_px + largura_sprite / 2
 
         y_top = self.altura_tela / 2 - altura_sprite / 2 + player.offset_caminhada
 
@@ -89,11 +89,11 @@ class Raycaster:
                     y_top,
                 )
 
-                faixa_da_imagem = (
-                    i * self.largura_coluna - esquerda,     # Posição X na imagem
-                    0,                                      # Posição Y na imagem
+                faixa_do_sprite = (
+                    i * self.largura_coluna - esquerda,     # Posição X na imagem do sprite
+                    0,                                      # Posição Y na imagem do sprite
                     self.largura_coluna,
                     altura_sprite
                 )
 
-                self.tela.blit(imagem, posicao_na_tela, faixa_da_imagem)
+                self.tela.blit(imagem, posicao_na_tela, faixa_do_sprite)

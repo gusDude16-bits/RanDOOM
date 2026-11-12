@@ -1,7 +1,7 @@
 import pygame
 from pathlib import Path
 from .config import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, TITLE
-from .entities import Jogador, Sprite
+from .entities import Jogador, Inimigo
 from .scenes import Mapa, Raycaster
 from .ui import Hud
 
@@ -22,10 +22,9 @@ class Jogo:
         self.player = Jogador(2.5, 6.5, 0.0)
         self.mapa = Mapa(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.raycaster = Raycaster(self.tela, self.COLUNAS)
-        self.sprites = list()
-        self.sprites.append(Sprite(4, 8, 0.0, imagem=Path(__file__).parent / "assets" / "Portal_feio.png"))
-        self.sprites.append(Sprite(6, 7, 0.0, imagem=Path(__file__).parent / "assets" / "averiguando-possivel-resenha.png"))
-        self.hud = Hud(self.tela, self.ESCALA, self.mapa, self.sprites)
+        self.entidades = list()
+        
+        self.hud = Hud(self.tela, self.ESCALA, self.mapa, self.entidades)
     
     def checar_eventos(self) -> None:
         for evento in pygame.event.get():
@@ -48,6 +47,10 @@ class Jogo:
         correndo = teclas[pygame.K_LSHIFT] or teclas[pygame.K_RSHIFT] or teclas[pygame.K_LCTRL] or teclas[pygame.K_LSHIFT]
         
         self.player.movimentar(self.mapa, frente, giro, correndo)
+
+        for entidade in self.entidades:
+            if isinstance(entidade, Inimigo):
+                entidade.movimentar(self.player, self.mapa)
     
     def renderizar(self):
         self.tela.fill("gray10") # Teto
@@ -59,9 +62,11 @@ class Jogo:
         ) # Chão
 
         self.raycaster.raycasting(self.player, self.mapa, self.ESCALA, self.debug_ativado)
-        
-        for sprite in self.sprites:
-            self.raycaster.desenhar_sprite(sprite, self.player)
+
+        self.entidades.sort(key = lambda inimigo : inimigo.sprite.distancia(self.player), reverse=True)
+
+        for entidade in self.entidades:
+            self.raycaster.desenhar_sprite(entidade.sprite, self.player)
 
         if pygame.key.get_pressed()[pygame.K_TAB]:
             self.hud.desenharMinimapa(self.player)
