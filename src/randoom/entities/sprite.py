@@ -2,13 +2,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from .entity import Entity
 import math
+import pygame
 
 if TYPE_CHECKING:
     from .jogador import Jogador
 
 class Sprite (Entity):
-    def __init__(self, x: float, y: float, angulo: float) -> None:
+    def __init__(self, x: float, y: float, angulo: float, imagem: str) -> None:
         super().__init__(x, y, angulo)
+        self.imagem = pygame.image.load(imagem).convert_alpha()
 
     def distancia(self, player: Jogador) -> float:
         return (self.x - player.x) * (self.x - player.x) + (self.y - player.y) * (self.y - player.y)

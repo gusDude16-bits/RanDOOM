@@ -1,7 +1,6 @@
 from __future__ import annotations
 import pygame
 import math
-from pathlib import Path
 from typing import TYPE_CHECKING
 from ..config import SCREEN_HEIGHT, SCREEN_WIDTH
 
@@ -11,16 +10,14 @@ if TYPE_CHECKING:
     from .mapa import Mapa
     from ..entities import Sprite
 
-CAMINHO_SPRITE = Path(__file__).parent.parent / "assets" / "Portal_feio.png"
-
 class Raycaster:
     def __init__(self, surface: pygame.Surface, colunas: int) -> None:
         self.tela = surface
-        self.colunas = colunas
+        self.colunas = colunas                                                      # Colunas
         self.largura_tela = SCREEN_WIDTH
         self.altura_tela = SCREEN_HEIGHT
-        self.largura_coluna = self.largura_tela // self.colunas
-        self.imagem_sprite = pygame.image.load(CAMINHO_SPRITE).convert_alpha()
+        self.largura_coluna = self.largura_tela // self.colunas                     # Pixels
+        self.zBuffer = [0] * self.colunas
 
     def raycasting(self, player: Jogador, mapa: Mapa, escala: int, debug_ativado: bool) -> None:
         for i in range(self.colunas):
@@ -29,7 +26,7 @@ class Raycaster:
 
             # Correção do efeito "olho de peixe":
             distancia_raio = distancia_real * math.cos(angulo_raio - player.angulo)
-
+            self.zBuffer[i] = distancia_raio 
             luz = max(30, 230 - distancia_raio * 22)
 
             if lado == 0:
@@ -64,24 +61,39 @@ class Raycaster:
 
     def desenhar_sprite(self, sprite: Sprite, player: Jogador):
         angulo_relativo = sprite.anguloRelativo(player)
-        if not(-player.FOV / 2 <= angulo_relativo < player.FOV / 2):
-            return  #Se não estiver no campo de visão, n faz nada
         
-        distancia_real = math.sqrt(pow(sprite.x - player.x, 2) + pow(sprite.y - player.y, 2))
-        distancia_raio = distancia_real * math.cos(angulo_relativo)
-        distancia_raio = max(distancia_raio, 1e-3)
+        if not(- math.pi / 2 < angulo_relativo < math.pi / 2):
+            return  # Se não estiver no campo de visão, n faz nada
         
-        #Dimensões do sprite
-        altura_sprite = min(self.altura_tela, self.altura_tela / distancia_raio)
-        proporcao = self.imagem_sprite.get_width() / self.imagem_sprite.get_height()
+        distancia_real = math.sqrt(sprite.distancia(player))
+        distancia_raio_sprite = abs(distancia_real * math.cos(angulo_relativo))
+
+        # Dimensões do sprite
+        altura_sprite = min(self.altura_tela, self.altura_tela / distancia_raio_sprite)
+        proporcao = sprite.imagem.get_width() / sprite.imagem.get_height()
         largura_sprite = altura_sprite * proporcao
 
         coluna = (angulo_relativo + player.FOV / 2) * self.colunas / player.FOV
-        centro_px = coluna * self.largura_coluna
-        esquerda = centro_px - largura_sprite / 2
-        y = self.altura_tela / 2 - altura_sprite / 2 + player.offset_caminhada
 
-        imagem = pygame.transform.scale(self.imagem_sprite, (int(largura_sprite), int(altura_sprite)))
-        self.tela.blit(imagem, (esquerda, y))
+        centro_px = coluna * self.largura_coluna        # Pixels
+        esquerda = centro_px - largura_sprite / 2       # Pixels
+        direita = centro_px + largura_sprite / 2        # Pixels
 
+        y_top = self.altura_tela / 2 - altura_sprite / 2 + player.offset_caminhada
 
+        imagem = pygame.transform.scale(sprite.imagem, (int(largura_sprite), int(altura_sprite)))
+        for i in range(int(max(esquerda / self.largura_coluna, 0)), int(min(direita / self.largura_coluna, self.colunas))):
+            if self.zBuffer[i] > distancia_raio_sprite:
+                posicao_na_tela = (
+                    i * self.largura_coluna,
+                    y_top,
+                )
+
+                faixa_da_imagem = (
+                    i * self.largura_coluna - esquerda,     # Posição X na imagem
+                    0,                                      # Posição Y na imagem
+                    self.largura_coluna,
+                    altura_sprite
+                )
+
+                self.tela.blit(imagem, posicao_na_tela, faixa_da_imagem)

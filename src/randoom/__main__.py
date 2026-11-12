@@ -1,5 +1,5 @@
 import pygame
-import math
+from pathlib import Path
 from .config import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, TITLE
 from .entities import Jogador, Sprite
 from .scenes import Mapa, Raycaster
@@ -23,7 +23,8 @@ class Jogo:
         self.mapa = Mapa(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.raycaster = Raycaster(self.tela, self.COLUNAS)
         self.sprites = list()
-        self.sprites.append(Sprite(4, 8, 0.0))
+        self.sprites.append(Sprite(4, 8, 0.0, imagem=Path(__file__).parent / "assets" / "Portal_feio.png"))
+        self.sprites.append(Sprite(6, 7, 0.0, imagem=Path(__file__).parent / "assets" / "averiguando-possivel-resenha.png"))
         self.hud = Hud(self.tela, self.ESCALA, self.mapa, self.sprites)
     
     def checar_eventos(self) -> None:
@@ -44,8 +45,8 @@ class Jogo:
         
         giro = teclas[pygame.K_RIGHT] - teclas[pygame.K_LEFT]
         frente = teclas[pygame.K_UP] - teclas[pygame.K_DOWN]
-        correndo = teclas[pygame.K_LCTRL] or teclas[pygame.K_RCTRL]
-
+        correndo = teclas[pygame.K_LSHIFT] or teclas[pygame.K_RSHIFT] or teclas[pygame.K_LCTRL] or teclas[pygame.K_LSHIFT]
+        
         self.player.movimentar(self.mapa, frente, giro, correndo)
     
     def renderizar(self):
@@ -58,16 +59,13 @@ class Jogo:
         ) # Chão
 
         self.raycaster.raycasting(self.player, self.mapa, self.ESCALA, self.debug_ativado)
-        self.raycaster.desenhar_sprite(self.sprites[0], self.player)
+        
+        for sprite in self.sprites:
+            self.raycaster.desenhar_sprite(sprite, self.player)
+
         if pygame.key.get_pressed()[pygame.K_TAB]:
             self.hud.desenharMinimapa(self.player)
 
-        # angulo_relativo = self.sprites[0].anguloRelativo(self.player)
-        # if (- self.player.FOV / 2) <= angulo_relativo < (self.player.FOV / 2):
-        #     print(f"Coluna: {((angulo_relativo + self.player.FOV / 2) * self.COLUNAS / self.player.FOV)}")
-        # else:
-        #     print(f"Não aparece")
-        
         pygame.display.flip()
     
     def executar(self) -> None:                    
