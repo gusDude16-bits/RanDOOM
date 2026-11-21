@@ -54,8 +54,9 @@ class Raycaster:
             if celula not in self.textura_da_celula:
                 self.textura_da_celula[celula] = random.choices(
                     range(len(self.texturas_paredes)),
-                    weights=(1, 4)
+                    weights=(1, 2)
                 )[0]
+
                 
             textura = self.texturas_paredes[self.textura_da_celula[celula]]
 

@@ -31,8 +31,8 @@ class Jogador (Entity):
 
         # Efeito de movimento:
         if frente != 0:
-            freq = 0.3 if correndo else 0.2
-            amp = 12 if correndo else 6
+            freq = 0.5 if correndo else 0.3
+            amp = 16 if correndo else 8
 
             self.tempo_caminhada += freq
             self.offset_caminhada = math.sin(self.tempo_caminhada) * amp

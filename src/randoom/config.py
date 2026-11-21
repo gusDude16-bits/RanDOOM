@@ -15,3 +15,7 @@ DEFAULT_SPEED: float = 0.2
 CAMINHO_PAREDE_LIMPA: Path = Path(__file__).parent / "assets" / "Parede_limpa.png"
 CAMINHO_PAREDE: Path = Path(__file__).parent / "assets" / "Parede.png"
 CAMINHO_CEU: Path = Path(__file__).parent / "assets" / "Sky.jpg"
+CAMINHO_ARMA: Path = Path(__file__).parent/ "assets" / "arma_so_pra_testar.png"
+
+LARGURA_ARMA = 100
+ALTURA_ARMA = 240

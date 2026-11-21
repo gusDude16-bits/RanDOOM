@@ -1,8 +1,9 @@
 import pygame
-from .config import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, TITLE, CAMINHO_PAREDE_LIMPA, CAMINHO_PAREDE, CAMINHO_CEU
+from .config import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, TITLE, CAMINHO_PAREDE_LIMPA, CAMINHO_PAREDE, CAMINHO_CEU, CAMINHO_ARMA
 from .entities import Jogador, Sprite
 from .scenes import Mapa, Raycaster
 from .ui import Hud
+from .ui.Arma import Arma
 
 class Jogo:
     def __init__(self) -> None:
@@ -22,6 +23,7 @@ class Jogo:
         self.player = Jogador(1.5, 6.5, 0.0)
         self.mapa = Mapa(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.paredes = [CAMINHO_PAREDE, CAMINHO_PAREDE_LIMPA]
+        self.arma = Arma(CAMINHO_ARMA)
         
         self.raycaster = Raycaster(
             self.tela, 
@@ -63,8 +65,10 @@ class Jogo:
         ) # Chão
 
         self.raycaster.raycasting(self.player, self.mapa, self.ESCALA, self.debug_ativado)
+        self.arma.desenhar(self.tela)
         if pygame.key.get_pressed()[pygame.K_TAB]:
             self.hud.desenharMinimapa(self.player)
+        
         
         pygame.display.flip()
     
