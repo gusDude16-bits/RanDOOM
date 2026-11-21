@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 from .entity import Entity
 from .sprite import Sprite
 from ..config import DEFAULT_SPEED
-from pathlib import Path
 import math
 
 if TYPE_CHECKING:

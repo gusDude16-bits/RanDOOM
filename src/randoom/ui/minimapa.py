@@ -1,11 +1,11 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import pygame
+from ..entities import Sprite
 
 if TYPE_CHECKING:
     from ..scenes import Mapa
     from ..entities import Jogador
-    from ..entities import Sprite
 
 class Minimapa:
     def __init__(self, mapa: Mapa, escala: int, sprites: list[Sprite]) -> None:
@@ -25,5 +25,7 @@ class Minimapa:
         
         tela.blit(superficie, (0, 0))
         pygame.draw.circle(tela, "white", (player.x * self.ESCALA, player.y * self.ESCALA), 5)
+        
         for sprite in self.sprites:
-            pygame.draw.circle(tela, "red", (sprite.x * self.ESCALA, sprite.y * self.ESCALA), 5)
+            if isinstance(sprite, Sprite):
+                pygame.draw.circle(tela, "red", (sprite.x * self.ESCALA, sprite.y * self.ESCALA), 5)

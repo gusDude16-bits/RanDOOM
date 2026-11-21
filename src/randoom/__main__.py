@@ -1,7 +1,6 @@
 import pygame
-from pathlib import Path
-from .config import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, TITLE
-from .entities import Jogador, Inimigo
+from .config import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, TITLE, CAMINHO_PAREDE_LIMPA, CAMINHO_PAREDE, CAMINHO_CEU
+from .entities import Jogador, Sprite
 from .scenes import Mapa, Raycaster
 from .ui import Hud
 
@@ -19,12 +18,18 @@ class Jogo:
         self.COLUNAS = SCREEN_WIDTH // 5
         self.LARGURA = SCREEN_WIDTH // self.COLUNAS
 
-        self.player = Jogador(2.5, 6.5, 0.0)
+        self.sprites = list[Sprite]
+        self.player = Jogador(1.5, 6.5, 0.0)
         self.mapa = Mapa(SCREEN_WIDTH, SCREEN_HEIGHT)
-        self.raycaster = Raycaster(self.tela, self.COLUNAS)
-        self.entidades = list()
+        self.paredes = [CAMINHO_PAREDE, CAMINHO_PAREDE_LIMPA]
         
-        self.hud = Hud(self.tela, self.ESCALA, self.mapa, self.entidades)
+        self.raycaster = Raycaster(
+            self.tela, 
+            self.COLUNAS, 
+            self.paredes
+        )
+        
+        self.hud = Hud(self.tela, self.ESCALA, self.mapa, self.sprites)
     
     def checar_eventos(self) -> None:
         for evento in pygame.event.get():
@@ -44,33 +49,23 @@ class Jogo:
         
         giro = teclas[pygame.K_RIGHT] - teclas[pygame.K_LEFT]
         frente = teclas[pygame.K_UP] - teclas[pygame.K_DOWN]
-        correndo = teclas[pygame.K_LSHIFT] or teclas[pygame.K_RSHIFT] or teclas[pygame.K_LCTRL] or teclas[pygame.K_LSHIFT]
-        
-        self.player.movimentar(self.mapa, frente, giro, correndo)
+        correndo = teclas[pygame.K_LCTRL] or teclas[pygame.K_RCTRL]
 
-        for entidade in self.entidades:
-            if isinstance(entidade, Inimigo):
-                entidade.movimentar(self.player, self.mapa)
+        self.player.movimentar(self.mapa, frente, giro, correndo)
     
     def renderizar(self):
-        self.tela.fill("gray10") # Teto
-
+        self.tela.fill("#09005e") # Teto
+        
         pygame.draw.rect(
             self.tela, 
-            "sienna4", 
+            "#464646", 
             (0, SCREEN_HEIGHT / 2 + self.player.offset_caminhada, SCREEN_WIDTH, SCREEN_HEIGHT)
         ) # Chão
 
         self.raycaster.raycasting(self.player, self.mapa, self.ESCALA, self.debug_ativado)
-
-        self.entidades.sort(key = lambda inimigo : inimigo.sprite.distancia(self.player), reverse=True)
-
-        for entidade in self.entidades:
-            self.raycaster.desenhar_sprite(entidade.sprite, self.player)
-
         if pygame.key.get_pressed()[pygame.K_TAB]:
             self.hud.desenharMinimapa(self.player)
-
+        
         pygame.display.flip()
     
     def executar(self) -> None:                    

@@ -24,7 +24,7 @@ class Mapa:
     def parede(self, px: int, py: int) -> bool:
         return self.DESENHO[int(py)][int(px)] == "#"
 
-    def raio(self, angulo: float, x_j: float, y_j: float) -> tuple[float, int]:
+    def raio(self, angulo: float, x_j: float, y_j: float) -> tuple[float, int, tuple[int, int]]:
         cos, sen = math.cos(angulo), math.sin(angulo)
 
         passo_x = abs(1 / cos) if cos != 0 else math.inf
@@ -52,4 +52,4 @@ class Mapa:
                 lado = 1
 
             if self.parede(map_x, map_y):
-                return dist_total, lado
+                return dist_total, lado, (map_x, map_y)
