@@ -79,7 +79,7 @@ class Raycaster:
             tex_x = int(pos_na_parede * self.tex_largura)
 
             altura = min(int(self.altura_tela / distancia_raio), self.altura_tela * 4)
-            y_top = (self.altura_tela / 2 - altura / 2) + player.offset_caminhada
+            y_top = (self.altura_tela / 2 - altura / 2)
             
             fatia = textura.subsurface((tex_x, 0, 1, self.tex_altura))
             fatia = pygame.transform.scale(fatia, (self.largura_coluna, altura))
@@ -126,7 +126,7 @@ class Raycaster:
         esquerda = centro_px - largura_sprite / 2
         direita = centro_px + largura_sprite / 2
 
-        y_top = self.altura_tela / 2 - altura_sprite / 2 + player.offset_caminhada
+        y_top = self.altura_tela / 2 - altura_sprite / 2
 
         imagem = pygame.transform.scale(sprite.imagem, (int(largura_sprite), int(altura_sprite)))
         for i in range(int(max(esquerda / self.largura_coluna, 0)), int(min(direita / self.largura_coluna, self.colunas))):

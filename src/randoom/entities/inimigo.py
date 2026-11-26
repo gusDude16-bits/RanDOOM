@@ -6,7 +6,7 @@ from ..config import DEFAULT_SPEED
 import math
 
 if TYPE_CHECKING:
-    from jogador import Jogador
+    from .jogador import Jogador
     from ..scenes import Mapa
 
 class Inimigo (Entity):
@@ -15,12 +15,13 @@ class Inimigo (Entity):
         ao jogador e dar dano ao mesmo.
     """
     
-    def __init__(self, x: float, y: float, angulo: float, hp: int, dano: int, imagem: str, velocidade: float = DEFAULT_SPEED / 2) -> None:
+    def __init__(self, x: float, y: float, angulo: float, hp: int, dano: int, imagem: str, raio: float, velocidade: float = DEFAULT_SPEED / 2) -> None:
         super().__init__(x, y, angulo)
         self.hp = hp
         self.dano = dano
         self.velocidade = velocidade
         self.sprite = Sprite(x, y, angulo, imagem)
+        self.raio = raio
 
     def isDead(self) -> bool:
         return self.hp <= 0
@@ -28,10 +29,11 @@ class Inimigo (Entity):
     def contatoJogador(self, player: Jogador) -> bool:
         return self.sprite.distancia(player) <= 1
 
-    def acertou(self, player: Jogador) -> bool:
+    def acertou(self, player: Jogador, dist_parede: float) -> bool:
         distancia = math.sqrt(self.sprite.distancia(player))
-        limite = math.atan2(0.3, distancia)
-        return abs(self.sprite.anguloRelativo(player)) <= limite
+        parede = abs(dist_parede * math.cos(player.angulo))
+        limite = math.atan2(self.raio, distancia)
+        return abs(self.sprite.anguloRelativo(player)) <= limite and distancia <= parede 
 
     def movimentar(self, player: Jogador, mapa: Mapa):
         if self.contatoJogador(player):

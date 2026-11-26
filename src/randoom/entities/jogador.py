@@ -14,9 +14,11 @@ class Jogador (Entity):
         
         self.FOV = FOV
         self.velocidade = DEFAULT_SPEED
-        self.tempo_caminhada = 0.0
-        self.offset_caminhada = 0.0
         self.hp = hp
+        
+        self.fase_movimento = 0.0   # Em que fase da função seno que descreve o balanço da visão do jogador está
+        self.amplitude_balanco = 0.0
+        self.velocidade_balanco = 0.4
 
     def isDead(self) -> bool:
         return self.hp <= 0
@@ -33,13 +35,16 @@ class Jogador (Entity):
         if not mapa.parede(self.x, self.y + dy):
             self.y += dy
 
-        # Efeito de movimento:
-        # if frente != 0:
-        #     freq = 0.3 if correndo else 0.2
-        #     amp = 12 if correndo else 6
+        # Velocidade e Amplitude alvo para a função de balanço de visão
+        if frente != 0:
+            velocidade_alvo = 0.6 if correndo else 0.4
+            amplitude_alvo = 10 if correndo else 6
 
-        #     self.tempo_caminhada += freq
-        #     self.offset_caminhada = math.sin(self.tempo_caminhada) * amp
-        # else:
-        #     self.tempo_caminhada = 0
-        #     self.offset_caminhada *= 0.8
+            self.fase_movimento += self.velocidade_balanco
+        else:
+            velocidade_alvo = 0.3
+            amplitude_alvo = 0.0
+
+        # Efeito de movimento
+        self.amplitude_balanco += (amplitude_alvo - self.amplitude_balanco) * 0.15
+        self.velocidade_balanco += (velocidade_alvo - self.velocidade_balanco) * 0.15

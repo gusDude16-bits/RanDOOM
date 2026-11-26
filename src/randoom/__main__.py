@@ -1,6 +1,5 @@
 import pygame
 import random
-import math
 from .config import (
     SCREEN_WIDTH, 
     SCREEN_HEIGHT, 
@@ -10,8 +9,9 @@ from .config import (
     CAMINHO_PAREDE, 
     CAMINHO_CEU,
     CAMINHO_INIMIGO,
+    SPRITES_ARMA
 )
-from .entities import Jogador, Sprite, Inimigo
+from .entities import Jogador, Inimigo
 from .scenes import Mapa, Raycaster
 from .ui import Hud, Arma
 
@@ -54,8 +54,7 @@ class Jogo:
         self.hud = Hud(self.tela, self.ESCALA, self.mapa, self.entidades)
         self.armas: list[Arma] = []
         
-        self.entidades.append(Inimigo(6, 7, 0, 100, 50, CAMINHO_INIMIGO))
-        self.armas.append(Arma(10, 5))
+        self.armas.append(Arma(20, 2, SPRITES_ARMA))
             
     def checar_eventos(self) -> None:
         """
@@ -96,9 +95,11 @@ class Jogo:
                 random.randint(1, 6),
                 0.0, 
                 100, 
-                10, 
-                CAMINHO_INIMIGO
+                10,
+                CAMINHO_INIMIGO,
+                0.3
             )
+
             self.entidades.append(temp)
 
         self.player.movimentar(self.mapa, frente, giro, correndo)
@@ -120,13 +121,17 @@ class Jogo:
                     self.ultimo_flash = tempo_atual
 
         if self.armas[0].atirando:
-            no_alcance = [e for e in self.entidades if isinstance(e, Inimigo) and e.acertou(self.player)]
+            no_alcance = [
+                e for e in self.entidades 
+                if isinstance(e, Inimigo) 
+                and e.acertou(self.player, self.raycaster.zBuffer[len(self.raycaster.zBuffer) // 2])
+            ]
 
             if no_alcance:
                 alvo = min(no_alcance, key = lambda e: e.sprite.distancia(self.player))
                 alvo.hp -= self.armas[0].dano
             
-        self.entidades[:] = [e for e in self.entidades if isinstance(e, Inimigo) and not e.isDead()]
+        self.entidades[:] = [e for e in self.entidades if not e.isDead()]
     
     def renderizar(self):
         """
@@ -139,7 +144,7 @@ class Jogo:
         pygame.draw.rect(
             self.tela, 
             "#464646", 
-            (0, SCREEN_HEIGHT / 2 + self.player.offset_caminhada, SCREEN_WIDTH, SCREEN_HEIGHT)
+            (0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT)
         ) # Chão
 
         self.raycaster.raycasting(self.player, self.mapa, self.ESCALA, self.debug_ativado)
@@ -150,7 +155,7 @@ class Jogo:
                 if not entidade.isDead():
                     self.raycaster.desenhar_sprite(entidade.sprite, self.player)
 
-        self.tela.blit(self.armas[0].imagem, self.armas[0].rect)
+        self.armas[0].animacao_tiro(self.tela, tempo_atual, self.player)
 
         tempo_decorrido = tempo_atual - self.ultimo_flash
         
