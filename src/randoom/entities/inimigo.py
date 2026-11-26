@@ -28,6 +28,11 @@ class Inimigo (Entity):
     def contatoJogador(self, player: Jogador) -> bool:
         return self.sprite.distancia(player) <= 1
 
+    def acertou(self, player: Jogador) -> bool:
+        distancia = math.sqrt(self.sprite.distancia(player))
+        limite = math.atan2(0.3, distancia)
+        return abs(self.sprite.anguloRelativo(player)) <= limite
+
     def movimentar(self, player: Jogador, mapa: Mapa):
         if self.contatoJogador(player):
             return

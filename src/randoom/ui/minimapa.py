@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import pygame
-from ..entities import Sprite
+from ..entities import Inimigo
 
 if TYPE_CHECKING:
     from ..scenes import Mapa
@@ -12,10 +12,10 @@ class Minimapa:
         Classe responsável por gerenciar o minimapa da Hud.
     """
     
-    def __init__(self, mapa: Mapa, escala: int, sprites: list[Sprite]) -> None:
+    def __init__(self, mapa: Mapa, escala: int, entidades: list) -> None:
         self.mapa = mapa
         self.ESCALA = escala
-        self.sprites = sprites
+        self.entidades = entidades
 
     def renderizar(self, tela: pygame.Surface, player: Jogador) -> None:
         superficie = pygame.Surface((tela.get_width(), tela.get_height()), pygame.SRCALPHA)
@@ -30,6 +30,6 @@ class Minimapa:
         tela.blit(superficie, (0, 0))
         pygame.draw.circle(tela, "white", (player.x * self.ESCALA, player.y * self.ESCALA), 5)
         
-        for sprite in self.sprites:
-            if isinstance(sprite, Sprite):
-                pygame.draw.circle(tela, "red", (sprite.x * self.ESCALA, sprite.y * self.ESCALA), 5)
+        for entidade in self.entidades:
+            if isinstance(entidade, Inimigo):
+                pygame.draw.circle(tela, "red", (entidade.x * self.ESCALA, entidade.y * self.ESCALA), 5)

@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 from .config import (
     SCREEN_WIDTH, 
     SCREEN_HEIGHT, 
@@ -8,11 +9,11 @@ from .config import (
     CAMINHO_PAREDE_LIMPA, 
     CAMINHO_PAREDE, 
     CAMINHO_CEU,
-    CAMINHO_INIMIGO
+    CAMINHO_INIMIGO,
 )
 from .entities import Jogador, Sprite, Inimigo
 from .scenes import Mapa, Raycaster
-from .ui import Hud
+from .ui import Hud, Arma
 
 class Jogo:
     """
@@ -47,14 +48,14 @@ class Jogo:
         self.paredes = [CAMINHO_PAREDE, CAMINHO_PAREDE_LIMPA]
 
         self.player = Jogador(1.5, 6.5, 0.0, 100)
-        self.mapa = Mapa(SCREEN_WIDTH, SCREEN_HEIGHT)
-        self.sprites: list[Sprite] = []
+        self.mapa = Mapa()
         self.entidades = []
         self.raycaster = Raycaster(self.tela, self.COLUNAS, self.paredes)
-        self.hud = Hud(self.tela, self.ESCALA, self.mapa, self.sprites)
+        self.hud = Hud(self.tela, self.ESCALA, self.mapa, self.entidades)
+        self.armas: list[Arma] = []
         
-        self.entidades.append(Inimigo(6, 7, 0, 100, 10, CAMINHO_INIMIGO))
-        self.sprites.append(self.entidades[0].sprite)
+        self.entidades.append(Inimigo(6, 7, 0, 100, 50, CAMINHO_INIMIGO))
+        self.armas.append(Arma(10, 5))
             
     def checar_eventos(self) -> None:
         """
@@ -81,7 +82,7 @@ class Jogo:
         """
             Gerencia as interações jogador-jogo no loop principal.
         """
-        
+
         tempo_atual = pygame.time.get_ticks()
         teclas = pygame.key.get_pressed()
         
@@ -89,16 +90,43 @@ class Jogo:
         frente = teclas[pygame.K_UP] - teclas[pygame.K_DOWN]
         correndo = teclas[pygame.K_LCTRL] or teclas[pygame.K_RCTRL]
 
+        if teclas[pygame.K_i]:
+            temp = Inimigo(
+                random.randint(1, 6),
+                random.randint(1, 6),
+                0.0, 
+                100, 
+                10, 
+                CAMINHO_INIMIGO
+            )
+            self.entidades.append(temp)
+
         self.player.movimentar(self.mapa, frente, giro, correndo)
+
+        arma = self.armas[0]
+        arma.atirando = False
+
+        if teclas[pygame.K_SPACE] and tempo_atual - arma.ultimo_tiro >= arma.vel:
+            arma.atirando = True
+            arma.ultimo_tiro = tempo_atual
         
         for entidade in self.entidades:
             if isinstance(entidade, Inimigo):
                 entidade.movimentar(self.player, self.mapa)
-                
+        
                 if entidade.contatoJogador(self.player) and tempo_atual - self.ultimo_dano >= self.cooldown_dano:
                     self.ultimo_dano = tempo_atual
                     self.player.hp -= entidade.dano
                     self.ultimo_flash = tempo_atual
+
+        if self.armas[0].atirando:
+            no_alcance = [e for e in self.entidades if isinstance(e, Inimigo) and e.acertou(self.player)]
+
+            if no_alcance:
+                alvo = min(no_alcance, key = lambda e: e.sprite.distancia(self.player))
+                alvo.hp -= self.armas[0].dano
+            
+        self.entidades[:] = [e for e in self.entidades if isinstance(e, Inimigo) and not e.isDead()]
     
     def renderizar(self):
         """
@@ -115,12 +143,15 @@ class Jogo:
         ) # Chão
 
         self.raycaster.raycasting(self.player, self.mapa, self.ESCALA, self.debug_ativado)
-        if pygame.key.get_pressed()[pygame.K_TAB]:
-            self.hud.desenharMinimapa(self.player)
-        
-        for sprite in self.sprites:
-            self.raycaster.desenhar_sprite(sprite, self.player)
-        
+
+        self.entidades.sort(key= lambda e: e.sprite.distancia(self.player), reverse=True)
+        for entidade in self.entidades:
+            if isinstance(entidade, Inimigo):
+                if not entidade.isDead():
+                    self.raycaster.desenhar_sprite(entidade.sprite, self.player)
+
+        self.tela.blit(self.armas[0].imagem, self.armas[0].rect)
+
         tempo_decorrido = tempo_atual - self.ultimo_flash
         
         if tempo_decorrido < self.duracao_flash:
@@ -134,7 +165,10 @@ class Jogo:
             copia = self.tela.copy()
             self.tela.fill("#000000")
             self.tela.blit(copia, (dx, dy))
-            
+
+        if pygame.key.get_pressed()[pygame.K_TAB]:
+            self.hud.desenharMinimapa(self.player)
+
         pygame.display.flip()
     
     def executar(self) -> None:

@@ -7,19 +7,18 @@ import pygame
 if TYPE_CHECKING:
     from ..scenes import Mapa
     from ..entities import Jogador
-    from ..entities import Sprite
 
 class Hud:
     """
         Classe responsável por gerenciar a hud do jogador.
     """
     
-    def __init__(self, surface: pygame.Surface, escala: int, mapa: Mapa, sprites: list[Sprite]):
+    def __init__(self, surface: pygame.Surface, escala: int, mapa: Mapa, entidades: list):
         self.tela = surface
         self.mapa = mapa
         self.ESCALA = escala
         self.exibir_minimapa = True
-        self.minimapa = Minimapa(mapa, escala, sprites)
+        self.minimapa = Minimapa(mapa, escala, entidades)
 
     def desenharMinimapa(self, player: Jogador) -> None:
         self.minimapa.renderizar(self.tela, player)

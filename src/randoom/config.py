@@ -16,3 +16,7 @@ CAMINHO_PAREDE_LIMPA: Path = Path(__file__).parent / "assets" / "Parede_limpa.pn
 CAMINHO_PAREDE: Path = Path(__file__).parent / "assets" / "Parede.png"
 CAMINHO_CEU: Path = Path(__file__).parent / "assets" / "Sky.jpg"
 CAMINHO_INIMIGO: Path = Path(__file__).parent / "assets" / "averiguando-possivel-resenha.png"
+CAMINHO_ARMA: Path = Path(__file__).parent / "assets" / "arma.png"
+
+ALTURA_ARMA = 300
+LARGURA_ARMA = 400

@@ -23,7 +23,7 @@ class Jogador (Entity):
 
     def movimentar(self, mapa: Mapa, frente: int, giro: int, correndo: bool) -> None:
         passo = frente * (self.velocidade if not correndo else self.velocidade * 1.6)
-        self.angulo += giro * 0.05
+        self.angulo += giro * 0.1
 
         dx = math.cos(self.angulo) * passo
         dy = math.sin(self.angulo) * passo
