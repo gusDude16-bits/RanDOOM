@@ -10,17 +10,26 @@ if TYPE_CHECKING:
     from ..scenes import Mapa
 
 class Inimigo (Entity):
-    def __init__(self, x: float, y: float, angulo: float, hp: float, imagem: str, velocidade: float = DEFAULT_SPEED / 2) -> None:
+    """
+        Inimigo do jogo, capaz de se movimentar em direção 
+        ao jogador e dar dano ao mesmo.
+    """
+    
+    def __init__(self, x: float, y: float, angulo: float, hp: int, dano: int, imagem: str, velocidade: float = DEFAULT_SPEED / 2) -> None:
         super().__init__(x, y, angulo)
         self.hp = hp
+        self.dano = dano
         self.velocidade = velocidade
         self.sprite = Sprite(x, y, angulo, imagem)
 
     def isDead(self) -> bool:
         return self.hp <= 0
 
+    def contatoJogador(self, player: Jogador) -> bool:
+        return self.sprite.distancia(player) <= 1
+
     def movimentar(self, player: Jogador, mapa: Mapa):
-        if self.sprite.distancia(player) <= 1:
+        if self.contatoJogador(player):
             return
 
         angulo_ate_player = math.atan2(self.y - player.y, self.x - player.x)

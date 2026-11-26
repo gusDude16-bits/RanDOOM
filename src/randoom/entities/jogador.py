@@ -6,16 +6,20 @@ import math
 class Jogador (Entity):
     """
         Classe jogador, responsável por guardar posição, campo de visão e
-        controlar a movimentação.
+        controlar a movimentação e o hp restante do jogador.
     """
 
-    def __init__(self, px: float, py: float, angulo: float, FOV: float = DEFAULT_FOV) -> None:
+    def __init__(self, px: float, py: float, angulo: float, hp: int, FOV: float = DEFAULT_FOV) -> None:
         super().__init__(px, py, angulo)
         
         self.FOV = FOV
         self.velocidade = DEFAULT_SPEED
         self.tempo_caminhada = 0.0
         self.offset_caminhada = 0.0
+        self.hp = hp
+
+    def isDead(self) -> bool:
+        return self.hp <= 0
 
     def movimentar(self, mapa: Mapa, frente: int, giro: int, correndo: bool) -> None:
         passo = frente * (self.velocidade if not correndo else self.velocidade * 1.6)
@@ -30,12 +34,12 @@ class Jogador (Entity):
             self.y += dy
 
         # Efeito de movimento:
-        if frente != 0:
-            freq = 0.3 if correndo else 0.2
-            amp = 12 if correndo else 6
+        # if frente != 0:
+        #     freq = 0.3 if correndo else 0.2
+        #     amp = 12 if correndo else 6
 
-            self.tempo_caminhada += freq
-            self.offset_caminhada = math.sin(self.tempo_caminhada) * amp
-        else:
-            self.tempo_caminhada = 0
-            self.offset_caminhada *= 0.8
+        #     self.tempo_caminhada += freq
+        #     self.offset_caminhada = math.sin(self.tempo_caminhada) * amp
+        # else:
+        #     self.tempo_caminhada = 0
+        #     self.offset_caminhada *= 0.8

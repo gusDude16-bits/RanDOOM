@@ -11,6 +11,11 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 class Raycaster:
+    """
+        Classe responsável por gerenciar o raycaster, que gera o
+        efeito 2.5D do jogo.
+    """
+    
     def __init__(self, surface: pygame.Surface, colunas: int, caminhos_paredes: list[Path]) -> None:
         self.tela = surface
         self.colunas = colunas
@@ -30,6 +35,17 @@ class Raycaster:
         self.textura_da_celula: dict[tuple[int, int], int] = {}
 
     def raycasting(self, player: Jogador, mapa: Mapa, escala: int, debug_ativado: bool) -> None:
+        """
+            Envia raios por todo o campo de visão do jogador e renderiza as paredes do mapa
+            conforme a distância percorrida pelo raio.
+            
+            Args:
+                player (Jogador) : Jogador Principal
+                mapa (Mapa) : Mapa atual
+                escala (int) : A escala para desenhar os raios no minimapa
+                debug_ativado (bool) : Se ativo, mostra os raios desenhados no minimapa
+        """
+        
         for i in range(self.colunas):
             angulo_raio = player.angulo - player.FOV / 2 + player.FOV * i / self.colunas
             distancia_real, lado, celula = mapa.raio(angulo_raio, player.x, player.y)
@@ -81,7 +97,16 @@ class Raycaster:
                         (px * escala, py * escala)
                     )
 
-    def desenhar_sprite(self, sprite: Sprite, player: Jogador):
+    def desenhar_sprite(self, sprite: Sprite, player: Jogador) -> None:
+        """
+            Desenha os sprites presentes na tela conforme as distâncias do jogador ao
+            sprite e do jogador a parede guardadas no zBuffer do Raycaster.
+            
+            Args:
+                sprite (Sprite) : A imagem a ser desenhada na tela.
+                player (Jogador) : Jogador Principal
+        """
+        
         angulo_relativo = sprite.anguloRelativo(player)
         
         if not(- math.pi / 2 < angulo_relativo < math.pi / 2):

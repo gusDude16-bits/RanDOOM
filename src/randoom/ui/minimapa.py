@@ -8,6 +8,10 @@ if TYPE_CHECKING:
     from ..entities import Jogador
 
 class Minimapa:
+    """
+        Classe responsável por gerenciar o minimapa da Hud.
+    """
+    
     def __init__(self, mapa: Mapa, escala: int, sprites: list[Sprite]) -> None:
         self.mapa = mapa
         self.ESCALA = escala

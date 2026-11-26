@@ -1,8 +1,11 @@
 import math
-import random
 
 class Mapa:
-    def __init__(self, dimensao_x: int, dimensao_y: int):
+    """
+        Classe responsável por gerenciar os mapas do jogo.
+    """
+    
+    def __init__(self):
         self.DESENHO = [
             "#######################################",
             "#.....................................#",
@@ -25,6 +28,19 @@ class Mapa:
         return self.DESENHO[int(py)][int(px)] == "#"
 
     def raio(self, angulo: float, x_j: float, y_j: float) -> tuple[float, int, tuple[int, int]]:
+        """
+            Calcula a distância percorrida por um raio de um ponto inicial (x_j, y_j)
+            até atingir a primeira parede do mapa.
+            
+            Args:
+                angulo (float) : Angulo do raio
+                x_j (float) : Posição x inicial do raio
+                y_j (float) : Posição y inicial do raio
+                
+            Returns:
+                tuple[float, int, tuple[int, int]] : Distância, Lado atingido (0 = x, 1 = y) e célula do mapa atingida.
+        """
+        
         cos, sen = math.cos(angulo), math.sin(angulo)
 
         passo_x = abs(1 / cos) if cos != 0 else math.inf
